@@ -1,13 +1,13 @@
 -- Work Item: ad-hoc
 -- Task: ad-hoc spec generation
 -- Spec: Specification/Dimension/DimSalesPerson.md
--- Version: 2
--- Generated: 2026-06-28T11:24:40.468826+00:00
--- Notes: Refactored to Type 1 SCD upsert pattern with idempotent DDL and schema-qualified table structure.
+-- Version: 3
+-- Generated: 2026-06-28T11:25:08.340835+00:00
+-- Notes: Updated to DWH schema as per fully qualified name in spec; maintained Type 1 upsert logic.
 
-CREATE SCHEMA IF NOT EXISTS Dimension;
+CREATE SCHEMA IF NOT EXISTS DWH;
 
-CREATE TABLE IF NOT EXISTS Dimension.DimSalesPerson (
+CREATE TABLE IF NOT EXISTS DWH.DimSalesPerson (
     SalesPersonKey      int GENERATED ALWAYS AS IDENTITY,
     SalesPersonID       int NOT NULL,
     SalesPersonName     varchar(255),
@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS Dimension.DimSalesPerson (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS UK_DimSalesPerson_SalesPersonID
-    ON Dimension.DimSalesPerson (SalesPersonID);
+    ON DWH.DimSalesPerson (SalesPersonID);
 
-INSERT INTO Dimension.DimSalesPerson (
+INSERT INTO DWH.DimSalesPerson (
     SalesPersonID, SalesPersonName, SalesPersonLogin, SalesTeamID, 
     CompanyID, IsActive, TargetSalesWon, TargetSalesDone, 
     TargetSalesInvoiced, IsPortalUser
