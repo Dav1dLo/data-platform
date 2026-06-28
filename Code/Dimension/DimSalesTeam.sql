@@ -1,9 +1,9 @@
 -- Work Item: ad-hoc
 -- Task: ad-hoc spec generation
 -- Spec: Specification/Dimension/DimSalesTeam.md
--- Version: 2
--- Generated: 2026-06-28T12:45:51.857911+00:00
--- Notes: Refined DDL/DML for idempotency and alignment with standard dimension patterns.
+-- Version: 3
+-- Generated: 2026-06-28T12:47:40.230074+00:00
+-- Notes: Refactored to Type 1 upsert pattern with idempotent DDL and explicit schema management.
 
 CREATE SCHEMA IF NOT EXISTS Dimension;
 
