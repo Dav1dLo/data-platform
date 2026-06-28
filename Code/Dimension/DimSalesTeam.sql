@@ -1,9 +1,9 @@
 -- Work Item: ad-hoc
 -- Task: ad-hoc spec generation
 -- Spec: Specification/Dimension/DimSalesTeam.md
--- Version: 1
--- Generated: 2026-06-28T12:45:35.014255+00:00
--- Notes: Initial generation of DimSalesTeam using Type 1 upsert logic.
+-- Version: 2
+-- Generated: 2026-06-28T12:45:51.857911+00:00
+-- Notes: Refined DDL/DML for idempotency and alignment with standard dimension patterns.
 
 CREATE SCHEMA IF NOT EXISTS Dimension;
 
