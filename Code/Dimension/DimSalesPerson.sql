@@ -1,9 +1,9 @@
 -- Work Item: ad-hoc
--- Task: DimSalesPerson
+-- Task: ad-hoc spec generation
 -- Spec: Specification/Dimension/DimSalesPerson.md
 -- Version: 2
--- Generated: 2026-06-28T10:45:19.390868+00:00
--- Notes: Refactored to Type 1 upsert pattern using ON CONFLICT and corrected partner name resolution.
+-- Generated: 2026-06-28T11:24:40.468826+00:00
+-- Notes: Refactored to Type 1 SCD upsert pattern with idempotent DDL and schema-qualified table structure.
 
 CREATE SCHEMA IF NOT EXISTS Dimension;
 
@@ -32,15 +32,15 @@ INSERT INTO Dimension.DimSalesPerson (
     TargetSalesInvoiced, IsPortalUser
 )
 SELECT 
-    u.id,
-    p.name,
-    u.login,
-    u.sale_team_id,
-    u.company_id,
-    u.active,
-    u.target_sales_won,
-    u.target_sales_done,
-    u.target_sales_invoiced,
+    u.id, 
+    p.name, 
+    u.login, 
+    u.sale_team_id, 
+    u.company_id, 
+    u.active, 
+    u.target_sales_won, 
+    u.target_sales_done, 
+    u.target_sales_invoiced, 
     u.share
 FROM public.res_users u
 LEFT JOIN public.res_partner p ON u.partner_id = p.id
