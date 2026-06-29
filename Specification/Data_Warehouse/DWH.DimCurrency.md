@@ -18,7 +18,7 @@ PostgreSQL
 | CurrencySymbol | SCD1 | varchar(10) | varchar(10) | Pass-through from `public.res_currency.symbol`. | |
 | ISONumericCode | SCD1 | integer | integer | Pass-through from `public.res_currency.iso_numeric`. | |
 | DecimalPlaces | SCD1 | integer | integer | Pass-through from `public.res_currency.decimal_places`. | |
-| SymbolPosition | SCD1 | varchar(20) | varchar(20) | Pass-through from `public.res_currency.position`. | |
+| SymbolPositions | SCD2 | varchar(20) | varchar(20) | Pass-through from `public.res_currency.position`. | |
 | RoundingFactor | SCD1 | numeric(18,6) | numeric(18,6) | Pass-through from `public.res_currency.rounding`. | |
 | IsActive | SCD1 | boolean | boolean | Pass-through from `public.res_currency.active`. | |
 
