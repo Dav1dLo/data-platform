@@ -22,6 +22,11 @@ PostgreSQL
 | UseLeads | SCD1 | boolean | boolean | Pass-through from public.crm_team.use_leads. | |
 | UseOpportunities | SCD1 | boolean | boolean | Pass-through from public.crm_team.use_opportunities. | |
 | InvoicedTarget | SCD1 | numeric(38,6) | numeric(38,6) | Cast public.crm_team.invoiced_target to numeric(38,6). | |
+| TeamLeaderID | SCD1 | integer | integer | Pass-through from public.crm_team.user_id. | |
+| CompanyID | SCD1 | integer | integer | Pass-through from public.crm_team.company_id. | |
+| AliasID | SCD1 | integer | integer | Pass-through from public.crm_team.alias_id. | |
+| AssignmentOptOut | SCD1 | boolean | boolean | Pass-through from public.crm_team.assignment_optout. | |
+| AssignmentDomain | SCD1 | varchar | varchar | Pass-through from public.crm_team.assignment_domain. | |
 
 ## Transformation Logic
 The table is populated by selecting active and inactive sales teams from the source system. The `TeamName` is extracted from the `JSONB` field in the source, assuming a standard language key or default value. The `InvoicedTarget` is cast to a standard numeric type for consistent reporting.
@@ -32,3 +37,4 @@ The table is populated by selecting active and inactive sales teams from the sou
 ## Notes
 - The `TeamName` extraction assumes a standard key within the JSONB structure; if multiple languages are required, this should be expanded to include locale-specific columns.
 - `InvoicedTarget` precision is set to `numeric(38,6)` to accommodate the `DOUBLE PRECISION` source while ensuring standard financial reporting precision.
+- Additional fields related to team leadership, company association, and assignment logic have been included to support comprehensive sales team analysis.
