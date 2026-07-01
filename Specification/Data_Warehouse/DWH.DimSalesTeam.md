@@ -7,7 +7,7 @@ This dimension table stores descriptive attributes of sales teams, enabling the 
 One row per unique sales team.
 
 ## SCD Type
-Type 1
+Type 2
 
 ## SQL Dialect
 PostgreSQL
@@ -17,7 +17,7 @@ PostgreSQL
 | --- | --- | --- | --- | --- | --- |
 | SalesTeamSK | SK | integer | integer | System-generated surrogate key. | |
 | SalesTeamBK | BK | integer | integer | Pass-through from public.crm_team.id. | |
-| TeamName | SCD1 | varchar(255) | varchar(255) | Extracted from public.crm_team.name (JSONB ->> 'en_US' or default). | |
+| TeamName | SCD2 | varchar(255) | varchar(255) | Extracted from public.crm_team.name (JSONB ->> 'en_US' or default). | |
 | IsActive | SCD1 | boolean | boolean | Pass-through from public.crm_team.active. | |
 | UseLeads | SCD1 | boolean | boolean | Pass-through from public.crm_team.use_leads. | |
 | UseOpportunities | SCD1 | boolean | boolean | Pass-through from public.crm_team.use_opportunities. | |
