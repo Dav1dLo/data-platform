@@ -27,6 +27,10 @@ PostgreSQL
 | AliasID | SCD1 | integer | integer | Pass-through from public.crm_team.alias_id. | |
 | AssignmentOptOut | SCD1 | boolean | boolean | Pass-through from public.crm_team.assignment_optout. | |
 | AssignmentDomain | SCD1 | varchar | varchar | Pass-through from public.crm_team.assignment_domain. | |
+| Sequence | SCD1 | integer | integer | Pass-through from public.crm_team.sequence. | |
+| Color | SCD1 | integer | integer | Pass-through from public.crm_team.color. | |
+| CreatedAt | SCD1 | timestamp | timestamp | Pass-through from public.crm_team.create_date. | |
+| UpdatedAt | SCD1 | timestamp | timestamp | Pass-through from public.crm_team.write_date. | |
 
 ## Transformation Logic
 The table is populated by selecting active and inactive sales teams from the source system. The `TeamName` is extracted from the `JSONB` field in the source, assuming a standard language key or default value. The `InvoicedTarget` is cast to a standard numeric type for consistent reporting.
@@ -38,3 +42,4 @@ The table is populated by selecting active and inactive sales teams from the sou
 - The `TeamName` extraction assumes a standard key within the JSONB structure; if multiple languages are required, this should be expanded to include locale-specific columns.
 - `InvoicedTarget` precision is set to `numeric(38,6)` to accommodate the `DOUBLE PRECISION` source while ensuring standard financial reporting precision.
 - Additional fields related to team leadership, company association, and assignment logic have been included to support comprehensive sales team analysis.
+- UI-related fields (`Sequence`, `Color`) and audit timestamps (`CreatedAt`, `UpdatedAt`) have been added to improve reporting consistency and data governance.
