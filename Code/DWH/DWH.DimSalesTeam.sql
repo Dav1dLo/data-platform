@@ -2,59 +2,83 @@
 -- Task: DWH.DimSalesTeam
 -- Spec: DWH.DimSalesTeam.md
 -- Version: 1
--- Generated: 2026-07-01T09:20:20.421701+00:00
--- Notes: Initial generation of DWH.DimSalesTeam dimension table.
+-- Generated: 2026-07-01T09:22:35.465405+00:00
+-- Notes: Initial generation of DWH.DimSalesTeam with SCD2 tracking.
 
 CREATE SCHEMA IF NOT EXISTS "DWH";
 
 CREATE TABLE IF NOT EXISTS "DWH"."DimSalesTeam" (
-    "SalesTeamSK"    integer GENERATED ALWAYS AS IDENTITY,
-    "SalesTeamBK"    integer NOT NULL,
-    "TeamName"       varchar(255),
-    "IsActive"       boolean,
-    "UseLeads"       boolean,
+    "SalesTeamSK"      integer GENERATED ALWAYS AS IDENTITY,
+    "SalesTeamBK"      integer NOT NULL,
+    "TeamName"         varchar(255),
+    "IsActive"         boolean,
+    "UseLeads"         boolean,
     "UseOpportunities" boolean,
-    "InvoicedTarget" numeric(38,6),
+    "InvoicedTarget"   numeric(38,6),
+    "TeamLeaderID"     integer,
+    "CompanyID"        integer,
+    "AliasID"          integer,
+    "AssignmentOptOut" boolean,
+    "AssignmentDomain" varchar,
+    "EffectiveDate"    timestamptz NOT NULL,
+    "ExpiryDate"       timestamptz,
+    "IsCurrent"        boolean NOT NULL DEFAULT true,
+    "CreatedDate"      timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT "PK_DimSalesTeam" PRIMARY KEY ("SalesTeamSK")
 );
 
--- Ensure columns exist (additive-only schema evolution)
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "SalesTeamBK" integer;
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "TeamName" varchar(255);
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "IsActive" boolean;
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "UseLeads" boolean;
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "UseOpportunities" boolean;
-ALTER TABLE "DWH"."DimSalesTeam" ADD COLUMN IF NOT EXISTS "InvoicedTarget" numeric(38,6);
+CREATE UNIQUE INDEX IF NOT EXISTS "UK_DimSalesTeam_CurrentBusinessKey"
+    ON "DWH"."DimSalesTeam" ("SalesTeamBK")
+    WHERE "IsCurrent";
 
 -- This script creates the table and adds any missing columns but does NOT rename or drop columns.
 -- Columns renamed or removed in the spec must be reconciled with the workspace's reviewed Apply schema changes migration.
 
-CREATE UNIQUE INDEX IF NOT EXISTS "UK_DimSalesTeam_SalesTeamBK" ON "DWH"."DimSalesTeam" ("SalesTeamBK");
-
 INSERT INTO "DWH"."DimSalesTeam" (
-    "SalesTeamSK", "SalesTeamBK", "TeamName", "IsActive", "UseLeads", "UseOpportunities", "InvoicedTarget"
+    "SalesTeamSK", "SalesTeamBK", "TeamName", "IsActive", "UseLeads", "UseOpportunities", 
+    "InvoicedTarget", "TeamLeaderID", "CompanyID", "AliasID", "AssignmentOptOut", "AssignmentDomain",
+    "EffectiveDate", "ExpiryDate", "IsCurrent", "CreatedDate"
 )
 OVERRIDING SYSTEM VALUE
 VALUES (
-    -1, -1, 'Unknown', false, false, false, 0
+    -1, -1, 'Unknown', false, false, false, 0, -1, -1, -1, false, 'Unknown',
+    '1900-01-01 00:00:00+00', NULL, true, now()
 )
 ON CONFLICT ("SalesTeamSK") DO NOTHING;
 
-INSERT INTO "DWH"."DimSalesTeam" (
-    "SalesTeamBK", "TeamName", "IsActive", "UseLeads", "UseOpportunities", "InvoicedTarget"
-)
-SELECT
-    s."id"::integer,
-    (s."name"::jsonb ->> 'en_US')::varchar(255),
-    s."active"::boolean,
-    s."use_leads"::boolean,
-    s."use_opportunities"::boolean,
-    s."invoiced_target"::numeric(38,6)
-FROM "public"."crm_team" AS s
-ON CONFLICT ("SalesTeamBK") DO UPDATE
-SET
-    "TeamName" = EXCLUDED."TeamName",
-    "IsActive" = EXCLUDED."IsActive",
-    "UseLeads" = EXCLUDED."UseLeads",
-    "UseOpportunities" = EXCLUDED."UseOpportunities",
-    "InvoicedTarget" = EXCLUDED."InvoicedTarget";
+DO $$
+DECLARE
+    v_now timestamptz := clock_timestamp();
+BEGIN
+    UPDATE "DWH"."DimSalesTeam" AS d
+    SET "ExpiryDate" = v_now - interval '1 second',
+        "IsCurrent"  = false
+    FROM "public"."crm_team" AS s
+    WHERE d."SalesTeamBK" = s."id"
+      AND d."IsCurrent"
+      AND EXISTS (
+          SELECT d."TeamName"
+          EXCEPT
+          SELECT (s."name"::jsonb ->> 'en_US')::varchar(255)
+      );
+
+    INSERT INTO "DWH"."DimSalesTeam" (
+        "SalesTeamBK", "TeamName", "IsActive", "UseLeads", "UseOpportunities", 
+        "InvoicedTarget", "TeamLeaderID", "CompanyID", "AliasID", "AssignmentOptOut", "AssignmentDomain",
+        "EffectiveDate", "ExpiryDate", "IsCurrent", "CreatedDate"
+    )
+    SELECT
+        s."id", (s."name"::jsonb ->> 'en_US')::varchar(255), s."active", s."use_leads", s."use_opportunities",
+        s."invoiced_target"::numeric(38,6), s."user_id", s."company_id", s."alias_id", s."assignment_optout", s."assignment_domain",
+        v_now, NULL, true, v_now
+    FROM "public"."crm_team" AS s
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM "DWH"."DimSalesTeam" AS d
+        WHERE d."SalesTeamBK" = s."id"
+          AND d."IsCurrent"
+    );
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE;
+END $$;
